@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyVault — Peer-Verified Academic Study Materials</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Top Announcement Bar -->
+  <aside class="announcement-bar" role="region" aria-label="Demo Announcement">
+    <div class="container announcement-inner">
+      <span>🚀 <strong>Demo Mode:</strong> Fully operational frontend prototype. All purchases and files are simulated locally using <code>localStorage</code>.</span>
+      <button class="announcement-dismiss" onclick="this.parentElement.parentElement.style.display='none'" aria-label="Dismiss banner">&times;</button>
+    </div>
+  </aside>
+
+  <!-- Navigation Header -->
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <a href="#home" class="brand-logo" aria-label="StudyVault Home">
+        <svg class="brand-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="var(--color-primary)"/>
+          <path d="M8 10C8 8.89543 8.89543 8 10 8H20C21.1046 8 22 8.89543 22 10V23C22 23.5523 21.5523 24 21 24H10C8.89543 24 8 23.1046 8 22V10Z" fill="white" fill-opacity="0.9"/>
+          <path d="M12 12H18M12 16H18M12 20H15" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="21" cy="21" r="4" fill="var(--color-accent)"/>
+          <path d="M20 21L21 22L23 20" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-text">Study<span>Vault</span></span>
+      </a>
+
+      <nav class="nav-desktop" aria-label="Primary Navigation">
+        <a href="#home" class="nav-link" data-route="home">Home</a>
+        <a href="#marketplace" class="nav-link" data-route="marketplace">Marketplace</a>
+        <a href="#about" class="nav-link" data-route="about">About</a>
+        <a href="#faq" class="nav-link" data-route="faq">FAQ</a>
+        <a href="#contact" class="nav-link" data-route="contact">Contact</a>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Cart Toggle Button -->
+        <button class="icon-btn cart-btn" id="openCartBtn" aria-label="Shopping Cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+
+        <!-- Auth Buttons Container -->
+        <div id="authNavButtons" class="auth-nav-container">
+          <!-- Populated by JS: Login button or User Profile/Dashboard menu -->
+        </div>
+
+        <!-- Mobile Hamburger Button -->
+        <button class="icon-btn mobile-menu-btn" id="mobileMenuBtn" aria-label="Open Navigation Menu">
+          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-panel" id="mobileNavPanel">
+      <nav class="mobile-nav-links">
+        <a href="#home" class="mobile-nav-link" onclick="app.closeMobileMenu()">Home</a>
+        <a href="#marketplace" class="mobile-nav-link" onclick="app.closeMobileMenu()">Marketplace</a>
+        <a href="#about" class="mobile-nav-link" onclick="app.closeMobileMenu()">About</a>
+        <a href="#faq" class="mobile-nav-link" onclick="app.closeMobileMenu()">FAQ</a>
+        <a href="#contact" class="mobile-nav-link" onclick="app.closeMobileMenu()">Contact</a>
+        <div id="mobileAuthControls" class="mobile-auth-controls"></div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Dynamic View Container -->
+  <main id="appRoot" class="app-main" role="main">
+    <!-- Views injected dynamically based on route hash -->
+  </main>
+
+  <!-- Shopping Cart Slide-out Drawer -->
+  <div class="drawer-overlay" id="cartOverlay" tabindex="-1"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Cart">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <h3>Your Vault Cart</h3>
+        <span class="cart-item-count" id="drawerItemCount">0 items</span>
+      </div>
+      <button class="icon-btn close-drawer-btn" id="closeCartBtn" aria-label="Close cart">&times;</button>
+    </div>
+
+    <div class="drawer-body" id="cartItemsContainer">
+      <!-- Cart items injected by JS -->
+    </div>
+
+    <div class="drawer-footer" id="cartFooter">
+      <div class="cart-summary-line">
+        <span>Subtotal</span>
+        <span id="cartSubtotal">$0.00</span>
+      </div>
+      <div class="cart-summary-line discount-line" id="discountLine" style="display: none;">
+        <span>Promo Discount (<strong id="appliedPromoCode"></strong>)</span>
+        <span id="cartDiscount">-$0.00</span>
+      </div>
+      <div class="cart-summary-line total-line">
+        <span>Total</span>
+        <span id="cartTotal" class="total-amount">$0.00</span>
+      </div>
+
+      <div class="promo-code-box">
+        <input type="text" id="promoInput" placeholder="Try code: VAULT20" />
+        <button class="btn btn-secondary btn-sm" onclick="app.applyPromoCode()">Apply</button>
+      </div>
+
+      <div class="drawer-actions">
+        <button class="btn btn-primary btn-block btn-lg" onclick="app.navigateTo('checkout')">
+          Proceed to Checkout
+        </button>
+        <button class="btn btn-ghost btn-block" onclick="app.clearCart()">Clear Cart</button>
+      </div>
+      <p class="drawer-secure-note">🔒 Demo sandbox: No charges made, instantaneous library delivery.</p>
+    </div>
+  </aside>
+
+  <!-- Authentication Modal (Login / Signup) -->
+  <div class="modal-backdrop" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <div class="modal-card">
+      <button class="modal-close" onclick="app.closeAuthModal()" aria-label="Close dialog">&times;</button>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tabLoginBtn" onclick="app.switchAuthTab('login')">Log In</button>
+        <button class="auth-tab-btn" id="tabSignupBtn" onclick="app.switchAuthTab('signup')">Create Account</button>
+      </div>
+
+      <!-- Quick Demo Access Bar -->
+      <div class="demo-quick-auth">
+        <span>Quick Auto-Fill Demo Users:</span>
+        <div class="demo-chip-group">
+          <button type="button" class="chip-btn" onclick="app.fillDemoUser('student')">Student Account</button>
+          <button type="button" class="chip-btn chip-admin" onclick="app.fillDemoUser('admin')">Admin Account</button>
+        </div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form" onsubmit="app.handleLogin(event)">
+        <h2 id="authModalTitle" class="auth-heading">Welcome Back</h2>
+        <p class="auth-sub">Access your acquired study guides, summaries, and notes.</p>
+        
+        <div class="form-group">
+          <label for="loginEmail">Academic or Personal Email</label>
+          <input type="email" id="loginEmail" required placeholder="alex@stanford.edu" />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Log In to StudyVault</button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" class="auth-form" style="display: none;" onsubmit="app.handleSignup(event)">
+        <h2 class="auth-heading">Join StudyVault</h2>
+        <p class="auth-sub">Over 15,000+ top students sharing verified study assets.</p>
+        
+        <div class="form-group">
+          <label for="signupName">Full Name</label>
+          <input type="text" id="signupName" required placeholder="e.g. Maya Lin" />
+        </div>
+        <div class="form-group">
+          <label for="signupEmail">Email Address</label>
+          <input type="email" id="signupEmail" required placeholder="maya@university.edu" />
+        </div>
+        <div class="form-group">
+          <label for="signupRole">Account Type</label>
+          <select id="signupRole">
+            <option value="student">Student / Researcher</option>
+            <option value="admin">Administrator / Contributor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Create Password</label>
+          <input type="password" id="signupPassword" minlength="6" required placeholder="At least 6 characters" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Create Free Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Product Quick Detail & Preview Modal -->
+  <div class="modal-backdrop" id="productDetailModal" role="dialog" aria-modal="true">
+    <div class="modal-card modal-lg">
+      <button class="modal-close" onclick="app.closeProductModal()" aria-label="Close dialog">&times;</button>
+      <div id="productDetailContent">
+        <!-- Injected by app.openProductModal(id) -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Add/Edit Product Modal -->
+  <div class="modal-backdrop" id="adminProductModal" role="dialog" aria-modal="true">
+    <div class="modal-card modal-lg">
+      <button class="modal-close" onclick="app.closeAdminModal()" aria-label="Close dialog">&times;</button>
+      <h2 id="adminModalTitle" class="auth-heading">Add Study Material</h2>
+      <form id="adminProductForm" class="admin-form" onsubmit="app.saveAdminProduct(event)">
+        <input type="hidden" id="adminProdId" value="" />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="adminTitle">Title / Course Code</label>
+            <input type="text" id="adminTitle" required placeholder="e.g. CS 106B: Advanced Data Structures" />
+          </div>
+          <div class="form-group">
+            <label for="adminCategory">Discipline / Category</label>
+            <select id="adminCategory" required>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Medicine">Medicine & Biology</option>
+              <option value="Law">Law & Legal Studies</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Business">Business & Economics</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Psychology">Psychology</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="adminPrice">Price ($ USD)</label>
+            <input type="number" id="adminPrice" step="0.01" min="0" required placeholder="14.99" />
+          </div>
+          <div class="form-group">
+            <label for="adminAuthor">Author / Institution</label>
+            <input type="text" id="adminAuthor" required placeholder="e.g. Dr. K. Vance (Harvard)" />
+          </div>
+          <div class="form-group">
+            <label for="adminPages">Total Pages</label>
+            <input type="number" id="adminPages" min="1" required placeholder="84" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="adminDesc">Detailed Description</label>
+          <textarea id="adminDesc" rows="3" required placeholder="Provide an outline of topics, formulas, or exams covered..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="adminBadge">Badge Highlight (Optional)</label>
+            <input type="text" id="adminBadge" placeholder="e.g. Bestseller, Exam Cram, High Yield" />
+          </div>
+          <div class="form-group">
+            <label for="adminFormat">File Format</label>
+            <select id="adminFormat">
+              <option value="PDF (Vector Searchable)">PDF (Vector Searchable)</option>
+              <option value="GoodNotes / Notability Pack">GoodNotes / Notability Pack</option>
+              <option value="LaTeX + PDF Bundle">LaTeX + PDF Bundle</option>
+              <option value="Markdown + Obsidian Vault">Markdown + Obsidian Vault</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer-btns">
+          <button type="button" class="btn btn-secondary" onclick="app.closeAdminModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="adminSubmitBtn">Save Material</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Alert -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand-col">
+        <a href="#home" class="brand-logo footer-logo">
+          <svg class="brand-icon" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="var(--color-primary)"/>
+            <path d="M8 10C8 8.89543 8.89543 8 10 8H20C21.1046 8 22 8.89543 22 10V23C22 23.5523 21.5523 24 21 24H10C8.89543 24 8 23.1046 8 22V10Z" fill="white"/>
+          </svg>
+          <span class="brand-text">Study<span>Vault</span></span>
+        </a>
+        <p class="footer-desc">
+          StudyVault is a peer-vetted academic resource repository. High-yield summaries, formula sheets, verified exam prep, and lecture notes curated by top graduates.
+        </p>
+        <div class="legal-badge-pill">
+          <span>Simulation Prototype — All storage saved to browser localStorage</span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Platform</h4>
+        <ul class="footer-links">
+          <li><a href="#marketplace">All Study Vaults</a></li>
+          <li><a href="#marketplace?category=Medicine">Medical Guides</a></li>
+          <li><a href="#marketplace?category=Computer+Science">CS & Algorithms</a></li>
+          <li><a href="#marketplace?category=Law">Law School Outlines</a></li>
+          <li><a href="#dashboard">Student Dashboard</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Company & Info</h4>
+        <ul class="footer-links">
+          <li><a href="#about">About Our Mission</a></li>
+          <li><a href="#faq">Frequently Asked Questions</a></li>
+          <li><a href="#contact">Contact Support</a></li>
+          <li><a href="#admin">Admin Demonstration</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-heading">Legal & Compliance</h4>
+        <ul class="footer-links">
+          <li><a href="#terms">Terms of Service</a></li>
+          <li><a href="#privacy">Privacy Policy</a></li>
+          <li><a href="#refund">Refund & Guarantee Policy</a></li>
+        </ul>
+        <div class="footer-newsletter">
+          <label for="nlEmail">Exam Prep Weekly Brief</label>
+          <div class="newsletter-input-group">
+            <input type="email" id="nlEmail" placeholder="student@school.edu" />
+            <button class="btn btn-secondary btn-sm" onclick="app.subscribeNewsletter()">Join</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>&copy; <span id="copyrightYear"></span> StudyVault Inc. Pure Vanilla Web Prototype. Academic fair use guidelines apply.</p>
+      <div class="footer-bottom-badges">
+        <span class="tech-tag">HTML5</span>
+        <span class="tech-tag">Pure CSS3</span>
+        <span class="tech-tag">Vanilla ES6+</span>
+        <span class="tech-tag">Zero Dependencies</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
